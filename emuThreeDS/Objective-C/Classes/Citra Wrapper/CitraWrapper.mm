@@ -17,10 +17,9 @@
 #include "core/core.h"
 #include "core/frontend/applets/default_applets.h"
 #include "core/hle/service/am/am.h"
-#include "core/loader/loader.h"
-#include "core/savestate.h"
 #include "emuwindow_vulkan.h"
 #include "game_info.h"
+
 
 @implementation PerformanceStatistics
 -(PerformanceStatistics *) initWithSystemFps:(double)systemFps gameFps:(double)gameFps frameTime:(double)frameTime emulationSpeed:(double)emulationSpeed {
@@ -29,16 +28,6 @@
         self.gameFps = gameFps;
         self.frameTime = frameTime;
         self.emulationSpeed = emulationSpeed;
-    } return self;
-}
-@end
-
-
-@implementation SaveStateInfo
--(SaveStateInfo *) initWithSlot:(int)slot time:(int)time {
-    if (self = [super init]) {
-        self.slot = slot;
-        self.time = time;
     } return self;
 }
 @end
@@ -194,7 +183,7 @@ std::unique_ptr<EmuWindow_Vulkan> emuWindowVulkan;
     
     // MARK: Audio Stretching | BEGIN
     Core::TimingEventType* audio_stretching_event{};
-    auto audio_stretching_ticks {msToCycles(500)};
+    const s64 audio_stretching_ticks{msToCycles(500)};
     audio_stretching_event = core.CoreTiming().RegisterEvent("AudioStretchingEvent", [&](u64, s64 cycles_late) {
         if (Settings::values.enable_audio_stretching)
             Core::DSP().EnableStretching(Core::System::GetInstance().GetAndResetPerfStats().emulation_speed < 0.95);
@@ -275,25 +264,6 @@ std::unique_ptr<EmuWindow_Vulkan> emuWindowVulkan;
 
 -(void) updateCheat:(NSInteger)index withPath:(NSString *)path {
     
-}
-
-
--(NSArray <SaveStateInfo *> *) saveStates {
-    auto save_states = Core::ListSaveStates(_title_id);
-    
-    NSMutableArray *saveStates = @[].mutableCopy;
-    for (auto save_state : save_states)
-        [saveStates addObject:[[SaveStateInfo alloc] initWithSlot:save_state.slot time:save_state.time]];
-    
-    return saveStates;
-}
-
--(void) loadState:(NSInteger)index {
-    NSLog(@"loadState: %i", core.SendSignal(Core::System::Signal::Load, index + 1));
-}
-
--(void) saveState {
-    NSLog(@"saveState: %i", core.SendSignal(Core::System::Signal::Save, self.saveStates.count + 1));
 }
 
 

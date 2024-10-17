@@ -45,7 +45,7 @@ class LibraryManager {
         }
         
         do {
-            let contents = try FileManager.default.contentsOfDirectory(atPath: directory.path).filter { $0.hasSuffix(".3ds") || $0.hasSuffix(".cci") || $0.hasSuffix(".cxi") }
+            let contents = try FileManager.default.contentsOfDirectory(atPath: directory.path).filter { $0.hasSuffix(".3ds") || $0.hasSuffix(".cci") }
             if contents.count == 0 {
                 return []
             }
